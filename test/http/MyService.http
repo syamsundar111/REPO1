@@ -1,0 +1,41 @@
+@server = http://localhost:4004
+@auth = Authorization: mocked
+
+
+### ProductsServise
+# @name ProductsServise_GET
+GET {{server}}/odata/v4/my/ProductsServise
+{{auth}}
+
+
+### ProductsServise
+# @name ProductsServise_POST
+POST {{server}}/odata/v4/my/ProductsServise
+Content-Type: application/json
+{{auth}}
+
+{
+  "ProductID": "ProductsServise-187489",
+  "ProductName": "ProductName-187489",
+  "QuantityPerUnit": "QuantityPerUnit-187489"
+}
+
+
+### ProductsServise
+# @name ProductsServise_PATCH
+PATCH {{server}}/odata/v4/my/ProductsServise/ProductsServise-187489
+Content-Type: application/json
+{{auth}}
+
+{
+  "ProductID": "ProductsServise-187489",
+  "ProductName": "ProductName-187489",
+  "QuantityPerUnit": "QuantityPerUnit-187489"
+}
+
+
+### ProductsServise
+# @name ProductsServise_DELETE
+DELETE {{server}}/odata/v4/my/ProductsServise/ProductsServise-187489
+Content-Type: application/json
+{{auth}}
