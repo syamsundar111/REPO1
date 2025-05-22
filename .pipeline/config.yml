@@ -18,9 +18,9 @@ service:
   buildToolVersion: "MBTJ17N18"
   stages:
     Acceptance:
-      cfCredentialsId: "deploy-to-cf"
+      cfCredentialsId: "deploy-cf"
     Release:
-      cfCredentialsId: "deploy-to-cf"
+      cfCredentialsId: "deploy-cf"
 stages:
   Build:
     mavenExecuteStaticCodeChecks: false
@@ -49,7 +49,7 @@ steps:
   cloudFoundryDeploy:
     mtaDeployParameters: "-f --version-rule ALL"
   Build:
-    npmScripts: ["install"]
+    npmScripts: ["install","run build"]
   tmsExport:
     nodeName: "Consumer"
     credentialsId: "ctms-cicd"
