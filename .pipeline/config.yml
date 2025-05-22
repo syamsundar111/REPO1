@@ -51,7 +51,7 @@ steps:
   Build:
     npmScripts: ["install","run build"]
   tmsExport:
-    nodeName: "Consumer"
+    nodeName: "consumerNode"
     credentialsId: "ctms-cicd"
   artifactPrepareVersion:
     versioningType: cloud_noTag
