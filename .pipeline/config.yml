@@ -1,0 +1,57 @@
+###
+# This file configures the project "Piper" pipeline of your project.
+# For a reference of the configuration concept and available options, please have a look into its documentation.
+#
+# The documentation for the most recent pipeline version can always be found at:
+#    https://www.project-piper.io/
+#
+# This is a YAML-file. YAML is an indentation-sensitive file format. Please make sure to properly indent changes to it.
+###
+
+
+
+### General project setup
+general:
+  inferBuildTool: true
+  buildTool: "mta"
+service:
+  buildToolVersion: "MBTJ17N18"
+  stages:
+    Acceptance:
+      cfCredentialsId: "deploy-to-cf"
+    Release:
+      cfCredentialsId: "deploy-to-cf"
+stages:
+  Build:
+    mavenExecuteStaticCodeChecks: false
+    npmExecuteLint: true
+  Acceptance:
+    cfApiEndpoint: "https://api.cf.us10-001.hana.ondemand.com"
+    cfOrg: "a0530da1trial"
+    cfSpace: "dev"
+    deployType: "standard"
+    cloudFoundryDeploy: true
+    npmExecuteEndToEndTests: false
+  Malware Scan:
+    malwareExecuteScan: false
+  Release:
+    tmsExport: true
+    tmsUpload: false
+    cfApiEndpoint: "https://api.cf.us10-001.hana.ondemand.com"
+    cfOrg: "a0530da1trial"
+    cfSpace: "dev"
+  Additional Unit Tests:
+    npmExecuteScripts: false
+  Compliance:
+    sonarExecuteScan: false
+### Step-specific configuration
+steps: 
+  cloudFoundryDeploy:
+    mtaDeployParameters: "-f --version-rule ALL"
+  Build:
+    npmScripts: ["install"]
+  tmsExport:
+    nodeName: "Consumer"
+    credentialsId: "ctms-cicd"
+  artifactPrepareVersion:
+    versioningType: cloud_noTag

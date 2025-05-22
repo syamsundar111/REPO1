@@ -1,0 +1,138 @@
+_schema-version: 3.3.0
+ID: fsapp
+description: A simple CAP project.
+version: 1.0.0
+modules:
+- name: fsapp-srv
+  type: nodejs
+  path: gen/srv
+  requires:
+  - name: fsapp-auth
+  - name: fsapp-db
+  provides:
+  - name: srv-api
+    properties:
+      srv-url: ${default-url}
+  parameters:
+    buildpack: nodejs_buildpack
+    instances: 1
+  build-parameters:
+    builder: npm-ci
+- name: fsapp-db-deployer
+  type: hdb
+  path: gen/db
+  requires:
+  - name: fsapp-db
+  parameters:
+    buildpack: nodejs_buildpack
+- name: fsapp-destination-content
+  type: com.sap.application.content
+  requires:
+  - name: fsapp-destination-service
+    parameters:
+      content-target: true
+  - name: fsapp_html_repo_host
+    parameters:
+      service-key:
+        name: fsapp_html_repo_host-key
+  - name: fsapp-auth
+    parameters:
+      service-key:
+        name: fsapp-auth-key
+  parameters:
+    content:
+      instance:
+        destinations:
+        - Name: fsapp_fsapp_html_repo_host
+          ServiceInstanceName: fsapp-html5-app-host-service
+          ServiceKeyName: fsapp_html_repo_host-key
+          sap.cloud.service: fsapp
+        - Authentication: OAuth2UserTokenExchange
+          Name: fsapp_fsapp_auth
+          ServiceInstanceName: fsapp-auth
+          ServiceKeyName: fsapp-auth-key
+          sap.cloud.service: fsapp
+        existing_destinations_policy: ignore
+  build-parameters:
+    no-source: true
+- name: fsapp-app-content
+  type: com.sap.application.content
+  path: .
+  requires:
+  - name: fsapp_html_repo_host
+    parameters:
+      content-target: true
+  build-parameters:
+    build-result: resources
+    requires:
+    - artifacts:
+      - fsappui.zip
+      name: fsappui
+      target-path: resources/
+- name: fsappui
+  type: html5
+  path: app/fsappui
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+resources:
+- name: fsapp-auth
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      tenant-mode: dedicated
+      xsappname: fsapp-${org}-${space}
+    path: ./xs-security.json
+    service: xsuaa
+    service-plan: application
+- name: fsapp-db
+  type: com.sap.xs.hdi-container
+  parameters:
+    service: hana
+    service-plan: hdi-shared
+- name: fsapp-destination-service
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      HTML5Runtime_enabled: true
+      init_data:
+        instance:
+          destinations:
+          - Authentication: NoAuthentication
+            Name: ui5
+            ProxyType: Internet
+            Type: HTTP
+            URL: https://ui5.sap.com
+          - Authentication: NoAuthentication
+            HTML5.DynamicDestination: true
+            HTML5.ForwardAuthToken: true
+            Name: fsapp-srv-api
+            ProxyType: Internet
+            Type: HTTP
+            URL: ~{srv-api/srv-url}
+          existing_destinations_policy: update
+      version: 1.0.0
+    service: destination
+    service-name: fsapp-destination-service
+    service-plan: lite
+  requires:
+  - name: srv-api
+- name: fsapp_html_repo_host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-name: fsapp-html5-app-host-service
+    service-plan: app-host
+parameters:
+  deploy_mode: html5-repo
+  enable-parallel-deployments: true
+build-parameters:
+  before-all:
+  - builder: custom
+    commands:
+    - npm ci
+    - npx cds build --production
