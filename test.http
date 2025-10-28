@@ -1,0 +1,16 @@
+POST http://localhost:4004/odata/v4/my/results
+Content-Type: application/json
+
+{           "soldTo": "",
+           "search": "",
+            "searchBy": "",
+              "fromDate":"2024-02-20T00:00:00",
+            "toDate": "2024-04-19T00:00:00",
+            "status": "",
+            "orderType":"",
+            "sort":"orderdate",
+            "dir": "asc",
+            "currentPage": "1",
+            "pageSize":"3"
+}
+
